@@ -1,0 +1,7 @@
+{
+  "name": "BioInterativo - IFAL Maceió",
+  "description": "Plataforma interativa de aprendizagem para Avaliação de Impactos Ambientais e Bioética, desenhada para alunos da Licenciatura em Biologia do IFAL Maceió.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
