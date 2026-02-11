@@ -1,6 +1,6 @@
 {
-  "name": "BioInterativo - IFAL Maceió",
-  "description": "Plataforma interativa de aprendizagem para Avaliação de Impactos Ambientais e Bioética, desenhada para alunos da Licenciatura em Biologia do IFAL Maceió.",
+  "name": "Bio-Command | IFAL Maceió",
+  "description": "Plataforma Técnica de Apoio Acadêmico com Interação Vocal em Tempo Real para Licenciatura em Biologia.",
   "requestFramePermissions": [
     "microphone"
   ]

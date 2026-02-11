@@ -9,36 +9,33 @@ export const Header: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   };
 
   return (
-    <header className="bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-900 sticky top-0 z-50 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
-        <div className="flex items-center space-x-6">
+    <header className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-900 sticky top-0 z-[60] h-20 md:h-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+        <div className="flex items-center space-x-4 md:space-x-6">
           {onBack && (
             <button 
               onClick={handleBack}
-              className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-gray-900 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-2xl transition-all text-purple-600 dark:text-purple-400 shadow-sm"
+              className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-slate-50 dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-900/40 rounded-xl transition-all text-emerald-600 dark:text-emerald-400 shadow-sm border border-slate-200 dark:border-slate-800"
             >
-              <i className="fas fa-arrow-left"></i>
+              <i className="fas fa-chevron-left"></i>
             </button>
           )}
-          <div className="flex items-center space-x-4 cursor-pointer" onClick={() => !onBack && window.location.reload()}>
-            <div className="relative w-14 h-14 flex items-center justify-center border-[3px] border-purple-600 dark:border-purple-500 rounded-full shadow-inner bg-white dark:bg-gray-800">
-              <span className="font-black text-2xl text-black dark:text-white tracking-tighter">zé</span>
-              <span className="absolute -bottom-1 -right-1 bg-purple-600 text-white border-2 border-white dark:border-gray-800 rounded-full w-6 h-6 flex items-center justify-center text-[10px] font-black">R</span>
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => !onBack && window.location.reload()}>
+            <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center border-4 border-emerald-500 rounded-xl bg-slate-900 shadow-lg shrink-0">
+              <span className="font-black text-lg md:text-xl text-white tracking-tighter">zé</span>
             </div>
             <div>
-              <h1 className="font-black text-2xl text-gray-900 dark:text-white tracking-tighter leading-none">BioInterativo</h1>
-              <p className="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest mt-1">IFAL Maceió • Licenciatura</p>
+              <h1 className="font-black text-base md:text-xl text-slate-900 dark:text-white tracking-tighter leading-none uppercase">Bio-Command</h1>
+              <p className="text-[8px] md:text-[10px] text-emerald-600 font-black uppercase tracking-[0.2em] mt-1">Terminal de Apoio • IFAL</p>
             </div>
           </div>
         </div>
         
-        <div className="hidden md:flex flex-col items-end">
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] font-black mb-1">Idealizadores</p>
+        <div className="hidden sm:flex flex-col items-end">
+          <p className="text-[8px] text-slate-400 uppercase tracking-[0.3em] font-black mb-1">Status do Servidor</p>
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xs">
-              <i className="fas fa-users-rays"></i>
-            </div>
-            <p className="text-base font-black text-gray-800 dark:text-gray-200">Figueirabrava & BioInterativo AI</p>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <p className="mono text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Online_AES_256</p>
           </div>
         </div>
       </div>

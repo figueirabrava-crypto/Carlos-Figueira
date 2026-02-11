@@ -23,34 +23,29 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ title, description, ic
   return (
     <button
       onClick={handleClick}
-      className="group bg-white dark:bg-gray-900 p-8 md:p-10 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl hover:shadow-2xl transition-all duration-500 text-left relative overflow-hidden h-full flex flex-col active:scale-95"
+      className="group bg-white dark:bg-slate-900 p-6 md:p-10 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500 transition-all duration-300 text-left flex flex-col active:scale-95"
     >
-      <div className={`absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 rounded-full transition-all duration-700 group-hover:scale-150 ${color} opacity-10`}></div>
-      
-      <div className="flex justify-between items-start mb-6">
-        <div className={`w-16 h-16 rounded-2xl ${color} flex items-center justify-center text-white text-2xl shadow-lg group-hover:rotate-6 transition-transform`}>
+      <div className="flex justify-between items-start mb-8">
+        <div className={`w-14 h-14 rounded-2xl ${color} flex items-center justify-center text-white text-xl shadow-lg group-hover:rotate-6 transition-transform`}>
           <i className={`fas ${icon}`}></i>
         </div>
-        <div className="flex flex-col items-end">
-          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Facilitadora</span>
-          <div className="flex items-center space-x-2">
-            <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{facilitator.name}</span>
-            <span className="text-xl">{facilitator.avatar}</span>
-          </div>
+        <div className="flex items-center space-x-3 bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-700">
+           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{facilitator.name}</span>
+           <span className="text-xl">{facilitator.avatar}</span>
         </div>
       </div>
       
-      <h3 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-3 leading-tight">
+      <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tight uppercase leading-tight">
         {title}
       </h3>
       
-      <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 mb-8 flex-grow leading-relaxed">
+      <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mb-8 flex-grow leading-relaxed font-medium">
         {description}
       </p>
       
-      <div className="flex items-center text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest text-[10px] group-hover:translate-x-2 transition-transform">
-        <span>Acessar Disciplina</span>
-        <i className="fas fa-arrow-right-long ml-3"></i>
+      <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-[0.2em] text-[9px]">
+        <span>Iniciar Terminal</span>
+        <i className="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
       </div>
     </button>
   );

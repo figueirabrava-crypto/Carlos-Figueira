@@ -1,117 +1,120 @@
 
 import { GoogleGenAI, Modality } from "@google/genai";
+import { Subject, AccessibilityConfig } from "../types";
 import { audioService } from "./audioService";
 
-class GeminiService {
+function decode(base64: string) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function decodeAudioData(
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number,
+  numChannels: number,
+): Promise<AudioBuffer> {
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
+}
+
+export class GeminiService {
   private ai: GoogleGenAI;
-  private currentSource: AudioBufferSourceNode | null = null;
+  private activeSource: AudioBufferSourceNode | null = null;
 
   constructor() {
-    // Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
     this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   }
 
-  async stop() {
-    if (this.currentSource) {
-      try {
-        this.currentSource.stop();
-      } catch (e) {}
-      this.currentSource = null;
-    }
-  }
+  async analyzeConsultancy(prompt: string, subject: Subject, history: any[], a11y: AccessibilityConfig) {
+    const model = 'gemini-3-pro-preview';
+    
+    const simplifiedPrompt = a11y.simplifiedLanguage 
+      ? "Use linguagem extremamente simples (nível fundamental), evite termos latinos ou técnicos densos. Se usar um termo técnico, explique-o com uma metáfora do cotidiano."
+      : "Use terminologia jurídica e biológica de alto nível. Cite jurisprudência, resoluções CONAMA ou CFBio específicas.";
 
-  async speak(text: string): Promise<void> {
+    const systemInstruction = subject === Subject.AIA 
+      ? `Você é a Dra. Gaia, Mentora Sênior do IFAL. 
+         POSTURA PEDAGÓGICA: Siga o método socrático. Se o aluno perguntar 'O que é EIA?', pergunte a ele qual o tamanho da obra que ele imagina e como ela poderia afetar o solo. Guie-o até a Resolução 001/86. 
+         OBJETIVO: Ensinar o biólogo a ser um perito crítico. Nunca dê respostas de uma linha. Analise o contexto.
+         ACESSIBILIDADE: Se houver dificuldade de compreensão, use analogias visuais (ex: 'O EIA é como um exame de sangue da natureza antes de uma cirurgia').
+         ${simplifiedPrompt}`
+      : `Você é a Dra. Sofia, Mestra em Bioética e Legislação. 
+         POSTURA PEDAGÓGICA: Estimule o debate ético. Use dilemas. Se o aluno estiver certo, desafie-o com um 'E se...?'. Se estiver errado, mostre a contradição no raciocínio dele com base nos 4 princípios da Bioética.
+         OBJETIVO: Formar profissionais com consciência moral inabalável.
+         ACESSIBILIDADE: Seja acolhedora e paciente. Use exemplos humanos e práticos.
+         ${simplifiedPrompt}`;
+
     try {
-      await this.stop();
-      
-      // Garante que o contexto esteja resumido (importante para mobile)
-      await audioService.resume();
-      
-      const context = audioService.audioContext;
-      if (!context) {
-        console.error("AudioContext não disponível");
-        return;
-      }
-
       const response = await this.ai.models.generateContent({
-        model: "gemini-2.5-flash-preview-tts",
-        contents: [{ parts: [{ text: `Diga de forma clara, didática e com voz feminina profissional de professora universitária: ${text}` }] }],
+        model,
+        contents: [...history, { role: 'user', parts: [{ text: prompt }] }],
         config: {
-          responseModalities: [Modality.AUDIO],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: 'Kore' },
-            },
-          },
+          systemInstruction,
+          tools: [{ googleSearch: {} }],
+          temperature: 0.8, // Um pouco mais alto para criatividade pedagógica
         },
       });
 
-      const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-      if (base64Audio) {
-        await this.playPCM(base64Audio);
-      }
-    } catch (error) {
-      console.error("Erro na narração Gemini:", error);
-    }
-  }
-
-  private async playPCM(base64: string): Promise<void> {
-    const context = audioService.audioContext;
-    if (!context) return;
-
-    try {
-      const bytes = this.decode(base64);
-      const buffer = await this.decodeAudioData(bytes, context, 24000, 1);
-      
-      const source = context.createBufferSource();
-      const gainNode = context.createGain();
-      
-      gainNode.gain.setValueAtTime(1.0, context.currentTime);
-      
-      source.buffer = buffer;
-      source.connect(gainNode);
-      gainNode.connect(context.destination);
-      
-      this.currentSource = source;
-      source.start(0);
-      
-      source.onended = () => {
-        if (this.currentSource === source) {
-          this.currentSource = null;
-        }
+      return { 
+        text: response.text || "Estou processando as diretrizes pedagógicas para você.", 
+        grounding: response.candidates?.[0]?.groundingMetadata?.groundingChunks || [] 
       };
-    } catch (e) {
-      console.error("Erro ao reproduzir PCM:", e);
+    } catch (error) {
+      console.error("Erro Gemini:", error);
+      throw error;
     }
   }
 
-  private decode(base64: string): Uint8Array {
-    const binaryString = atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-  }
-
-  private async decodeAudioData(
-    data: Uint8Array,
-    ctx: AudioContext,
-    sampleRate: number,
-    numChannels: number,
-  ): Promise<AudioBuffer> {
-    const dataInt16 = new Int16Array(data.buffer);
-    const frameCount = dataInt16.length / numChannels;
-    const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
-
-    for (let channel = 0; channel < numChannels; channel++) {
-      const channelData = buffer.getChannelData(channel);
-      for (let i = 0; i < frameCount; i++) {
-        channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+  async speak(text: string) {
+    this.stop();
+    // Limpar markdown para o TTS não ler asteriscos
+    const cleanText = text.replace(/[*#_]/g, '').slice(0, 800);
+    try {
+      const response = await this.ai.models.generateContent({
+        model: "gemini-2.5-flash-preview-tts",
+        contents: [{ parts: [{ text: cleanText }] }],
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } },
+          },
+        },
+      });
+      
+      const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      if (base64Audio && audioService.audioContext) {
+        const audioBuffer = await decodeAudioData(decode(base64Audio), audioService.audioContext, 24000, 1);
+        const source = audioService.audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioService.audioContext.destination);
+        source.start();
+        this.activeSource = source;
       }
+    } catch (e) {
+      console.error("Erro no áudio pedagógico:", e);
     }
-    return buffer;
+  }
+
+  stop() {
+    if (this.activeSource) {
+      try { this.activeSource.stop(); } catch (e) {}
+      this.activeSource = null;
+    }
   }
 }
 

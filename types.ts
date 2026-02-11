@@ -6,12 +6,26 @@ export enum Subject {
 
 export type Theme = 'light' | 'dark';
 
+export interface AccessibilityConfig {
+  simplifiedLanguage: boolean;
+  highContrast: boolean;
+  voiceGuidance: boolean;
+}
+
+export interface ConceptNode {
+  id: string;
+  label: string;
+  description: string;
+  connection?: string;
+}
+
 export interface Facilitator {
   name: string;
   role: string;
   bio: string;
   avatar: string;
   color: string;
+  specialty: string;
 }
 
 export interface Question {
@@ -21,28 +35,22 @@ export interface Question {
   correctAnswer: number;
   explanation: string;
   source: string;
+  level: 'Acadêmico' | 'Concurso Público' | 'Profissional';
+}
+
+export interface ChatMessage {
+  role: 'user' | 'model';
+  text: string;
+  tutor?: string;
+  grounding?: any[];
 }
 
 export interface SyllabusSection {
   title: string;
   content: string;
   keyPoints: string[];
-  scientificRef: string;
-}
-
-export interface CaseStudy {
-  id: string;
-  title: string;
-  description: string;
-  outcome: string;
-  subject: Subject | 'Integrado';
-  source: string;
-}
-
-export interface Curiosity {
-  title: string;
-  content: string;
-  icon: string;
+  legalFramework?: string[];
+  conceptMap?: ConceptNode[];
 }
 
 export interface SubjectData {
@@ -51,6 +59,5 @@ export interface SubjectData {
   facilitator: Facilitator;
   syllabus: SyllabusSection[];
   quiz: Question[];
-  cases: CaseStudy[];
-  curiosities: Curiosity[];
+  curiosities: any[];
 }
